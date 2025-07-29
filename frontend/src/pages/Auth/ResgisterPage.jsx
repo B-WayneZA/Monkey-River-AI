@@ -6,7 +6,7 @@ import logoImg from '../../assets/Favicon.png';
 
 const Register = () => {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({ username: '', password: '' });
+    const [formData, setFormData] = useState({  email: '', name: '', password: ''});
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
@@ -133,7 +133,7 @@ const Register = () => {
                                                 <input
                                                     type="text"
                                                     name="name"
-                                                    value={formData.username}
+                                                    value={formData.name}
                                                     onChange={handleChange}
                                                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                                                     placeholder="Enter your name"
