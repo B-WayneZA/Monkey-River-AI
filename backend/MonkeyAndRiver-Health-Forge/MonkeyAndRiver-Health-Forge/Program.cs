@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models; // Add this using statement
+using Microsoft.OpenApi.Models;
 using MonkeyAndRiver_Health_Forge.Models;
 using MonkeyAndRiver_Health_Forge.Services;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -11,12 +11,28 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("Development.json", optional: true, reloadOnChange: true);
 
-// Add services to the container
 builder.Services.AddDbContext<AppDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add HttpClientFactory service (essential for GroqService)
+
 builder.Services.AddHttpClient();
+
+
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowReactApp", policy =>
+	{
+		policy.WithOrigins(
+				"http://localhost:3000",    
+				"http://localhost:5173",    
+				"https://localhost:3000",   
+				"https://localhost:5173"
+			)
+			.AllowAnyMethod()
+			.AllowAnyHeader()
+			.AllowCredentials(); 
+	});
+});
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
@@ -39,15 +55,14 @@ builder.Services.AddAuthentication(options =>
 	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-// In Program.cs, update your JWT configuration to match your token structure:
 .AddJwtBearer(options =>
 {
 	options.TokenValidationParameters = new TokenValidationParameters
 	{
 		ValidateIssuer = true,
-		ValidIssuer = "localhost", // Must match your token's "iss" claim
+		ValidIssuer = "localhost",
 		ValidateAudience = true,
-		ValidAudience = "localhost", // Must match your token's "aud" claim
+		ValidAudience = "localhost",
 		ValidateLifetime = true,
 		ValidateIssuerSigningKey = true,
 		IssuerSigningKey = new SymmetricSecurityKey(
@@ -59,7 +74,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Updated Swagger configuration with JWT Authentication
 builder.Services.AddSwaggerGen(c =>
 {
 	c.SwaggerDoc("v1", new OpenApiInfo
@@ -69,7 +83,6 @@ builder.Services.AddSwaggerGen(c =>
 		Description = "Health diagnostic and evaluation API"
 	});
 
-	// Add JWT Authentication to Swagger
 	c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 	{
 		Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n" +
@@ -120,10 +133,13 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI(c =>
 	{
 		c.SwaggerEndpoint("/swagger/v1/swagger.json", "Health Forge API V1");
-		c.DocExpansion(DocExpansion.None); // Collapse all operations by default
-		c.DefaultModelsExpandDepth(-1); 
+		c.DocExpansion(DocExpansion.None);
+		c.DefaultModelsExpandDepth(-1);
 	});
 }
+
+// IMPORTANT: Add CORS before other middleware
+app.UseCors("AllowReactApp");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

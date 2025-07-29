@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaHeartbeat, FaThermometerHalf, FaWeight, FaRuler, FaPills, FaAllergies, FaSmoking, FaWineGlassAlt, FaRunning } from 'react-icons/fa';
+import ReactMarkdown from 'react-markdown'; 
 
 const HealthChecker = () => {
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [apiError, setApiError] = useState(null);
 
+    // Updated state to match backend DTO
     const [answers, setAnswers] = useState({
+        name: 'Health Assessment',
+        email: '',
         age: '',
         gender: '',
         height: '',
@@ -18,8 +24,10 @@ const HealthChecker = () => {
         smoker: '',
         alcohol: '',
         exercise: '',
-        conditions: []
+        healthConditions: [], // Changed to match backend
+        additionalNotes: ''
     });
+
     const [results, setResults] = useState(null);
 
     const handleChange = (e) => {
@@ -30,66 +38,55 @@ const HealthChecker = () => {
     const handleCheckboxChange = (condition) => {
         setAnswers(prev => ({
             ...prev,
-            conditions: prev.conditions.includes(condition)
-                ? prev.conditions.filter(c => c !== condition)
-                : [...prev.conditions, condition]
+            healthConditions: prev.healthConditions.includes(condition)
+                ? prev.healthConditions.filter(c => c !== condition)
+                : [...prev.healthConditions, condition]
         }));
     };
 
     const nextStep = () => setStep(prev => prev + 1);
     const prevStep = () => setStep(prev => prev - 1);
 
-    const calculateResults = () => {
-        // Simple scoring algorithm (replace with your actual logic)
-        let score = 0;
-        let recommendations = [];
-        let insuranceRisk = 'Low';
-
-        // Age scoring
-        if (answers.age >= 60) score += 3;
-        else if (answers.age >= 40) score += 2;
-        else if (answers.age >= 30) score += 1;
-
-        // BMI calculation
-        if (answers.height && answers.weight) {
-            const heightInMeters = answers.height / 100;
-            const bmi = answers.weight / (heightInMeters * heightInMeters);
-            if (bmi > 30) {
-                score += 3;
-                recommendations.push('Consider weight management program');
-            } else if (bmi > 25) {
-                score += 1;
-                recommendations.push('Maintain healthy diet and exercise');
+    // Submit to backend API using Fetch
+    const submitToBackend = async () => {
+        setIsSubmitting(true);
+        setApiError(null);
+        
+        try {
+            // Prepare data in backend format
+            const payload = {
+                ...answers,
+                // Convert to numbers
+                age: Number(answers.age),
+                height: Number(answers.height),
+                weight: Number(answers.weight)
+            };
+            
+            // Call backend API
+            const response = await fetch(
+                'http://localhost:5137/api/DiagnosticTest/submit',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                }
+            );
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            
+            const data = await response.json();
+            setResults(data);
+            setStep(7); // Go to results step
+        } catch (error) {
+            console.error('API Error:', error);
+            setApiError('Failed to process your request. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
-
-        // Health conditions
-        if (answers.conditions.includes('diabetes')) {
-            score += 2;
-            recommendations.push('Regular diabetes monitoring recommended');
-        }
-        if (answers.conditions.includes('hypertension')) {
-            score += 2;
-            recommendations.push('Blood pressure monitoring important');
-        }
-        if (answers.smoker === 'yes') {
-            score += 3;
-            recommendations.push('Smoking cessation programs available');
-        }
-
-        // Determine risk level
-        if (score >= 8) insuranceRisk = 'High';
-        else if (score >= 4) insuranceRisk = 'Medium';
-
-        setResults({
-            score,
-            insuranceRisk,
-            recommendations,
-            bmi: answers.height && answers.weight
-                ? (answers.weight / ((answers.height / 100) ** 2)).toFixed(1)
-                : null
-        });
-        nextStep();
     };
 
     const renderStep = () => {
@@ -100,6 +97,18 @@ const HealthChecker = () => {
                         <h2 className="text-2xl font-bold flex items-center">
                             <FaHeartbeat className="mr-2 text-red-500" /> Basic Information
                         </h2>
+                        {/* Added email field */}
+                        <div>
+                            <label className="block text-lg mb-2">Email</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={answers.email}
+                                onChange={handleChange}
+                                className="w-full p-3 border rounded-lg"
+                                required
+                            />
+                        </div>
                         <div>
                             <label className="block text-lg mb-2">Age</label>
                             <input
@@ -316,13 +325,25 @@ const HealthChecker = () => {
                                 <label key={condition} className="flex items-center space-x-3">
                                     <input
                                         type="checkbox"
-                                        checked={answers.conditions.includes(condition.toLowerCase())}
+                                        checked={answers.healthConditions.includes(condition.toLowerCase())}
                                         onChange={() => handleCheckboxChange(condition.toLowerCase())}
                                         className="h-5 w-5"
                                     />
                                     <span>{condition}</span>
                                 </label>
                             ))}
+                        </div>
+                        {/* Added additional notes field */}
+                        <div>
+                            <label className="block text-lg mb-2">Additional Notes</label>
+                            <textarea
+                                name="additionalNotes"
+                                value={answers.additionalNotes}
+                                onChange={handleChange}
+                                className="w-full p-3 border rounded-lg"
+                                rows="3"
+                                placeholder="Any other health information you'd like to share"
+                            ></textarea>
                         </div>
                     </div>
                 );
@@ -332,46 +353,40 @@ const HealthChecker = () => {
                     <div className="space-y-8">
                         <h2 className="text-3xl font-bold text-center">Your Health Assessment</h2>
 
+                        {/* Health Summary */}
                         <div className="bg-white p-6 rounded-xl shadow-md">
                             <h3 className="text-xl font-semibold mb-4">Summary</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <p className="font-medium">Insurance Risk Level:</p>
-                                    <p className={`text-2xl font-bold ${results.insuranceRisk === 'High' ? 'text-red-600' :
-                                        results.insuranceRisk === 'Medium' ? 'text-yellow-600' : 'text-green-600'
-                                        }`}>
-                                        {results.insuranceRisk}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="border p-4 rounded-lg">
+                                    <p className="font-medium">Age</p>
+                                    <p className="text-lg font-bold">{answers.age}</p>
+                                </div>
+                                <div className="border p-4 rounded-lg">
+                                    <p className="font-medium">Gender</p>
+                                    <p className="text-lg font-bold">{answers.gender}</p>
+                                </div>
+                                <div className="border p-4 rounded-lg">
+                                    <p className="font-medium">BMI</p>
+                                    <p className="text-lg font-bold">
+                                        {(answers.weight / ((answers.height / 100) ** 2)).toFixed(1)}
                                     </p>
                                 </div>
-                                {results.bmi && (
-                                    <div>
-                                        <p className="font-medium">BMI:</p>
-                                        <p className="text-2xl font-bold">{results.bmi}</p>
-                                        <p className="text-sm">
-                                            {results.bmi < 18.5 ? 'Underweight' :
-                                                results.bmi < 25 ? 'Normal weight' :
-                                                    results.bmi < 30 ? 'Overweight' : 'Obese'}
-                                        </p>
-                                    </div>
-                                )}
                             </div>
                         </div>
 
-                        {results.recommendations.length > 0 && (
-                            <div className="bg-blue-50 p-6 rounded-xl">
-                                <h3 className="text-xl font-semibold mb-4">Recommendations</h3>
-                                <ul className="list-disc pl-5 space-y-2">
-                                    {results.recommendations.map((item, index) => (
-                                        <li key={index}>{item}</li>
-                                    ))}
-                                </ul>
+                        {/* AI Evaluation */}
+                        {results && results.aiEvaluation && (
+                            <div className="bg-white p-6 rounded-xl shadow-md">
+                                <h3 className="text-xl font-semibold mb-4">AI Health Evaluation</h3>
+                                <div className="prose max-w-none">
+                                    <ReactMarkdown>{results.aiEvaluation}</ReactMarkdown>
+                                </div>
                             </div>
                         )}
 
-                        {/* Insurance plans and options */}
+                        {/* Next Steps */}
                         <div className="bg-gray-50 p-6 rounded-xl">
                             <h3 className="text-xl font-semibold mb-4">Next Steps</h3>
-                            <p className="mb-4">Based on your assessment, we recommend:</p>
                             <div className="space-y-4">
                                 <button className="w-full bg-lime-600 text-white py-3 rounded-lg hover:bg-lime-700">
                                     View Recommended Insurance Plans
@@ -387,7 +402,7 @@ const HealthChecker = () => {
                                 </button>
                             </div>
 
-                            {/* login prompt section */}
+                            {/* Login prompt */}
                             <div className="mt-6 p-4 bg-orange-50 border-l-4 border-yellow-400 rounded">
                                 <div className="flex items-start">
                                     <div className="flex-shrink-0 pt-0.5">
@@ -404,7 +419,7 @@ const HealthChecker = () => {
                                             </p>
                                             <div className="mt-4">
                                                 <button
-                                                    onClick={() => navigate('/login')}  // or your login route path
+                                                    onClick={() => navigate('/login')}
                                                     className="px-4 py-2 bg-sky-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700"
                                                 >
                                                     Log In / Sign Up
@@ -444,22 +459,31 @@ const HealthChecker = () => {
                     )}
 
                     <div className="p-6 sm:p-8">
+                        {/* Display API error if any */}
+                        {apiError && (
+                            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                                {apiError}
+                            </div>
+                        )}
+                        
                         {renderStep()}
 
                         {step <= 6 && (
                             <div className="mt-8 flex justify-between">
                                 <button
                                     onClick={prevStep}
-                                    disabled={step === 1}
+                                    disabled={step === 1 || isSubmitting}
                                     className={`px-6 py-2 rounded-lg ${step === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
                                 >
                                     Back
                                 </button>
                                 <button
-                                    onClick={step === 6 ? calculateResults : nextStep}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    onClick={step === 6 ? submitToBackend : nextStep}
+                                    disabled={isSubmitting}
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
                                 >
-                                    {step === 6 ? 'Get Results' : 'Next'}
+                                    {isSubmitting ? 'Processing...' : 
+                                     step === 6 ? 'Get Results' : 'Next'}
                                 </button>
                             </div>
                         )}
