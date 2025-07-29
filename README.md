@@ -50,7 +50,8 @@ npm start
 ```
 # Testing Section
 ![Image](https://github.com/user-attachments/assets/ff0cb730-fc4c-43b7-9ead-63bfaa6e4af7)
-
+![Image](https://github.com/user-attachments/assets/825d1377-dd5b-4404-8f02-d82f859f2f77)
+<img width="1605" height="627" alt="image" src="https://github.com/user-attachments/assets/3da968f7-c594-4812-ba93-b88b40fc6574" />
 
 ## Running Tests
 Backend (xUnit)
@@ -86,6 +87,12 @@ Testing is split between frontend (Jest) and backend (xUnit).
 
 ## Dashboard
 ![Image](https://github.com/user-attachments/assets/3bfe7802-e2f2-416b-9533-11e93c9a5411)
+
+## Health Checker
+![h1](https://github.com/user-attachments/assets/aa404234-53eb-463f-869c-d27b7b9845c1)
+![h2](https://github.com/user-attachments/assets/c8d52507-4d00-477b-bd9f-28199383f274)
+![h3](https://github.com/user-attachments/assets/9de792a7-5395-4fe6-a14b-b5a3716456f6)
+![h4](https://github.com/user-attachments/assets/86ac0695-64ef-4b25-975e-8bd8e02f61f9)
 
 ## AI health checker
 ![Image](https://github.com/user-attachments/assets/825d1377-dd5b-4404-8f02-d82f859f2f77)
