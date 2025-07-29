@@ -1,13 +1,17 @@
-// src/App.jsx
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from '../src/pages/Auth/LoginPage';
+import Login from '../src/pages/Auth/LoginPage'; 
+import Dashboard from '../src/pages/Alert/Dashboard';  
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        {/* Add other routes as needed */}
+        {/* Public route */}
+        {/* <Route path="/" element={<Login />} /> */}
+
+        {/* Protected route (add auth wrapper later if needed) */}
+        <Route path="/" element={<Dashboard />} />
       </Routes>
     </Router>
   );
