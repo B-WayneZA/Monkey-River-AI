@@ -10,7 +10,6 @@ namespace MonkeyAndRiver_Health_Forge.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize]
 	public class DiagnosticTestController : ControllerBase
 	{
 		private readonly DiagnosticService _diagnosticService;
@@ -20,15 +19,23 @@ namespace MonkeyAndRiver_Health_Forge.Controllers
 			_diagnosticService = diagnosticService;
 		}
 
-		[HttpPost]
-		public async Task<IActionResult> SubmitTest([FromBody] DiagnosticTestDto testDto)
+
+		[AllowAnonymous]
+		[HttpPost("submit")]
+		public async Task<ActionResult<DiagnosticTest>> SubmitTest(DiagnosticTestDto testDto)
 		{
+			string? userId = null;
+			if (User.Identity?.IsAuthenticated == true)
+			{
+				userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			}
+
 			var test = new DiagnosticTest
 			{
 				Name = testDto.Name,
 				Email = testDto.Email,
 				AdditionalNotes = testDto.AdditionalNotes,
-				AppUserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+				AppUserId = userId, // This will be null for anonymous users
 				HealthInfo = new HealthInformation
 				{
 					Age = testDto.Age,
@@ -43,8 +50,15 @@ namespace MonkeyAndRiver_Health_Forge.Controllers
 				}
 			};
 
-			var result = await _diagnosticService.SubmitDiagnosticTest(test);
-			return Ok(result);
+			try
+			{
+				var result = await _diagnosticService.SubmitDiagnosticTest(test);
+				return Ok(result);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Error submitting test: {ex.Message}");
+			}
 		}
 	}
 

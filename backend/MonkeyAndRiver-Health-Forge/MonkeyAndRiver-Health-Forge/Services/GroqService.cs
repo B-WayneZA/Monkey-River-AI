@@ -57,7 +57,7 @@ namespace MonkeyAndRiver_Health_Forge.Services
 					new GroqMessage { Role = "user", Content = prompt }
 				},
 				Temperature = 0.7f,
-				MaxTokens = 1500,
+				MaxTokens = 1000,
 				TopP = 1,
 				Stream = false
 			};
@@ -65,7 +65,6 @@ namespace MonkeyAndRiver_Health_Forge.Services
 			return await SendGroqRequestAsync(requestBody);
 		}
 
-		// Services/GroqService.cs
 		private string BuildHealthPrompt(DiagnosticTest test)
 		{
 			var healthInfo = test.HealthInfo;
@@ -107,9 +106,10 @@ namespace MonkeyAndRiver_Health_Forge.Services
 		{
 			try
 			{
+				// Use snake_case naming policy to match Groq API expectations
 				var jsonOptions = new JsonSerializerOptions
 				{
-					PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+					PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
 					DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
 				};
 

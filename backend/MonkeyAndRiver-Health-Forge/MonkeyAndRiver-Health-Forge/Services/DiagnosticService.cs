@@ -25,18 +25,16 @@ namespace MonkeyAndRiver_Health_Forge.Services
 		{
 			try
 			{
-				// Ensure HealthInfo is serialized to JSON
-				test.HealthInfoJson = JsonSerializer.Serialize(test.HealthInfo);
 
 				test.Status = "Processing";
 				_context.DiagnosticTests.Add(test);
 				await _context.SaveChangesAsync();
 
-				// Get AI evaluation
+				
 				test.AiEvaluation = await _groqService.GetHealthEvaluationAsync(test);
 				test.Status = "Completed";
 
-				// Update with AI evaluation
+				
 				_context.DiagnosticTests.Update(test);
 				await _context.SaveChangesAsync();
 

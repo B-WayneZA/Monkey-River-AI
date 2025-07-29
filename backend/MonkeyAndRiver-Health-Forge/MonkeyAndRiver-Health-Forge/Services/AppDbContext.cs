@@ -44,10 +44,14 @@ namespace MonkeyAndRiver_Health_Forge.Services
 				entity.Property(d => d.HealthInfoJson)
 					.HasColumnType("nvarchar(max)");
 
+				// Make AppUserId nullable to support anonymous users
+				entity.Property(d => d.AppUserId)
+					.IsRequired(false); // This explicitly allows NULL values
+
 				entity.HasOne(d => d.AppUser)
 					.WithMany(u => u.DiagnosticTests)
 					.HasForeignKey(d => d.AppUserId)
-					.OnDelete(DeleteBehavior.Cascade);
+					.OnDelete(DeleteBehavior.SetNull);
 			});
 		}
 	}
