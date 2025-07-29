@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from '../src/pages/Auth/LoginPage';
 import Dashboard from '../src/pages/Alert/Dashboard'; 
-import Register from '../src/pages/Auth/ResgisterPage';
+import Register from './pages/Auth/RegisterPage';
 import Profile from '../src/pages/Profile/Profile';
 import Test from '../src/pages/Crud/DiagnosticTestList';
 import HealthChecker from './pages/Dashboard/HealthChecker';
