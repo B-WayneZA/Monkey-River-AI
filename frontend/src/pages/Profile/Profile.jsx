@@ -6,8 +6,8 @@ import Sidebar from '../../components/Sidebar';
 const Profile = () => {
     // Initialize state with complete default values
     const [user, setUser] = useState({
-        name: 'Loading...',
-        email: 'Loading...',
+        name: 'Alice',
+        email: 'Bobson',
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
@@ -15,7 +15,7 @@ const Profile = () => {
         themePreference: 'light',
         lastUpdated: ''
     });
-    
+
     const [editMode, setEditMode] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
     const [isLoading, setIsLoading] = useState(true);
@@ -28,7 +28,7 @@ const Profile = () => {
             try {
                 // Simulate API call
                 await new Promise(resolve => setTimeout(resolve, 500));
-                
+
                 const storedUser = JSON.parse(localStorage.getItem('user')) || {
                     name: 'Alex Johnson',
                     email: 'alex.johnson@example.com',
@@ -36,7 +36,7 @@ const Profile = () => {
                     themePreference: 'light',
                     lastUpdated: new Date().toISOString()
                 };
-                
+
                 setUser({
                     ...user,
                     ...storedUser,
@@ -50,18 +50,19 @@ const Profile = () => {
                 setIsLoading(false);
             }
         };
-        
+
         fetchUserData();
     }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setUser(prev => ({ 
-            ...prev, 
-            [name]: type === 'checkbox' ? checked : value 
+        setUser(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
         }));
     };
 
+    // Validation forms 
     const validateForm = () => {
         if (editMode && user.newPassword && user.newPassword !== user.confirmPassword) {
             setMessage({ text: 'Passwords do not match', type: 'error' });
@@ -70,36 +71,37 @@ const Profile = () => {
         return true;
     };
 
+    // submit handler
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!validateForm()) return;
-        
+
         setIsLoading(true);
         try {
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 800));
-            
+
             const updatedUser = {
                 ...user,
                 lastUpdated: new Date().toISOString()
             };
-            
+
             // Remove password fields before saving
             const { currentPassword, newPassword, confirmPassword, ...userToStore } = updatedUser;
-            
+
             // "Persist" to database (localStorage for demo)
             localStorage.setItem('user', JSON.stringify(userToStore));
-            
-            setMessage({ 
-                text: 'Profile updated successfully!', 
-                type: 'success' 
+
+            setMessage({
+                text: 'Profile updated successfully!',
+                type: 'success'
             });
             setEditMode(false);
         } catch (error) {
-            setMessage({ 
-                text: 'Failed to update profile', 
-                type: 'error' 
+            setMessage({
+                text: 'Failed to update profile',
+                type: 'error'
             });
         } finally {
             setIsLoading(false);
@@ -126,58 +128,45 @@ const Profile = () => {
     return (
         <div className="min-h-screen flex bg-gray-50">
             <Sidebar />
-            
+
             {/* Main Content */}
             <div className="flex-1 ml-64">
                 {/* Header */}
-                <header className="bg-white shadow-sm">
-                    <div className="flex justify-between items-center px-8 py-4">
+                <header className="bg-white border-b border-gray-100">
+                    <div className="flex justify-between items-center px-8 py-5">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">User Profile</h1>
-                            <p className="text-gray-600">
-                                {editMode ? 'Edit your profile' : 'View your profile information'}
-                                {user.lastUpdated && (
-                                    <span className="text-xs text-gray-400 ml-2">
-                                        Last updated: {new Date(user.lastUpdated).toLocaleString()}
-                                    </span>
-                                )}
+                            <h1 className="text-2xl font-semibold text-gray-800 tracking-tight">
+                                User Profile
+                            </h1>
+                            <p className="mt-1 text-sm text-gray-500">
+                                {editMode ? 'Edit your profile details below' : 'View and manage your profile information'}
                             </p>
-                        </div>
-                        
-                        <div className="flex items-center space-x-6">
-                            <button 
-                                onClick={() => navigate(-1)}
-                                className="flex items-center text-primary hover:text-secondary transition"
-                            >
-                                <FaChevronLeft className="mr-1" /> Back to Dashboard
-                            </button>
                         </div>
                     </div>
                 </header>
-                
+
                 {/* Profile Content */}
                 <div className="px-8 py-6">
                     {message.text && (
-                        <div className={`mb-6 p-4 rounded-lg ${
-                            message.type === 'success' 
-                                ? 'bg-green-100 text-green-800 border border-green-200' 
-                                : 'bg-red-100 text-red-800 border border-red-200'
-                        }`}>
+                        <div className={`mb-6 p-4 rounded-lg ${message.type === 'success'
+                            ? 'bg-green-100 text-green-800 border border-green-200'
+                            : 'bg-red-100 text-red-800 border border-red-200'
+                            }`}>
                             {message.text}
                         </div>
                     )}
-                    
+
+                    {/* Div for background */}
                     <div className="bg-white rounded-xl shadow overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-primary to-secondary">
                             <h2 className="text-lg font-semibold text-white">Profile Settings</h2>
                             <button
                                 type="button"
                                 onClick={toggleEditMode}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
-                                    editMode 
-                                        ? 'bg-white text-primary hover:bg-gray-50' 
-                                        : 'bg-white/20 text-white hover:bg-white/30'
-                                }`}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${editMode
+                                    ? 'bg-sky-300 text-white hover:bg-sky-50'
+                                    : 'bg-sky-300 text-white hover:bg-sky/30'
+                                    }`}
                                 disabled={isLoading}
                             >
                                 {editMode ? (
@@ -191,7 +180,7 @@ const Profile = () => {
                                 )}
                             </button>
                         </div>
-                        
+
                         <form onSubmit={handleSubmit} className="p-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Personal Information Section */}
@@ -199,7 +188,7 @@ const Profile = () => {
                                     <h3 className="text-lg font-semibold text-gray-800 flex items-center mb-4">
                                         <FaUser className="mr-2 text-primary" /> Personal Information
                                     </h3>
-                                    
+
                                     <div className="space-y-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -216,7 +205,7 @@ const Profile = () => {
                                                 <p className="p-3 bg-gray-50 rounded-lg">{user.name}</p>
                                             )}
                                         </div>
-                                        
+
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                                             {editMode ? (
@@ -234,13 +223,13 @@ const Profile = () => {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 {/* Security Section */}
                                 <div>
                                     <h3 className="text-lg font-semibold text-gray-800 flex items-center mb-4">
                                         <FaLock className="mr-2 text-primary" /> Security
                                     </h3>
-                                    
+
                                     <div className="space-y-4">
                                         {editMode ? (
                                             <>
@@ -255,7 +244,7 @@ const Profile = () => {
                                                         placeholder="Enter current password"
                                                     />
                                                 </div>
-                                                
+
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
                                                     <input
@@ -267,7 +256,7 @@ const Profile = () => {
                                                         placeholder="Enter new password"
                                                     />
                                                 </div>
-                                                
+
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                                                     <input
@@ -283,8 +272,8 @@ const Profile = () => {
                                         ) : (
                                             <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
                                                 <p className="text-sm text-blue-800">
-                                                    Password last changed: {user.lastUpdated 
-                                                        ? new Date(user.lastUpdated).toLocaleDateString() 
+                                                    Password last changed: {user.lastUpdated
+                                                        ? new Date(user.lastUpdated).toLocaleDateString()
                                                         : 'Never'}
                                                 </p>
                                             </div>
@@ -292,13 +281,13 @@ const Profile = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Preferences Section */}
                             <div className="mt-8 pt-8 border-t border-gray-100">
                                 <h3 className="text-lg font-semibold text-gray-800 flex items-center mb-6">
                                     <FaBell className="mr-2 text-primary" /> Preferences
                                 </h3>
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Notification Threshold Setting */}
                                     <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
@@ -317,26 +306,25 @@ const Profile = () => {
                                             </select>
                                         ) : (
                                             <div className="flex items-center">
-                                                <div className={`px-3 py-1 rounded-md text-sm font-medium ${
-                                                    user.notificationThreshold === 'low' 
-                                                        ? 'bg-red-100 text-red-800' 
-                                                        : user.notificationThreshold === 'medium' 
-                                                            ? 'bg-yellow-100 text-yellow-800' 
-                                                            : 'bg-green-100 text-green-800'
-                                                }`}>
+                                                <div className={`px-3 py-1 rounded-md text-sm font-medium ${user.notificationThreshold === 'low'
+                                                    ? 'bg-red-100 text-red-800'
+                                                    : user.notificationThreshold === 'medium'
+                                                        ? 'bg-yellow-100 text-yellow-500'
+                                                        : 'bg-lime-100 text-lime-500'
+                                                    }`}>
                                                     {user.notificationThreshold.charAt(0).toUpperCase() + user.notificationThreshold.slice(1)}
                                                 </div>
                                                 <p className="ml-2 text-sm text-gray-600">
-                                                    {user.notificationThreshold === 'low' 
-                                                        ? 'Only critical alerts' 
-                                                        : user.notificationThreshold === 'medium' 
-                                                            ? 'Important alerts' 
+                                                    {user.notificationThreshold === 'low'
+                                                        ? 'Only critical alerts'
+                                                        : user.notificationThreshold === 'medium'
+                                                            ? 'Important alerts'
                                                             : 'All notifications'}
                                                 </p>
                                             </div>
                                         )}
                                     </div>
-                                    
+
                                     {/* Theme Preference Setting */}
                                     <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
                                         <h4 className="text-sm font-medium text-gray-700 mb-1">Theme Preference</h4>
@@ -381,34 +369,33 @@ const Profile = () => {
                                     </div>
                                 </div>
                             </div>
-                            
-                            {editMode && (
-                                <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={toggleEditMode}
-                                        className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
-                                        disabled={isLoading}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-secondary transition flex items-center justify-center"
-                                        disabled={isLoading}
-                                    >
-                                        {isLoading ? (
-                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                        ) : (
-                                            <FaSave className="mr-2" />
-                                        )}
-                                        Save Changes
-                                    </button>
-                                </div>
-                            )}
+
+                            {/* Save buttons */}
+                            <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={toggleEditMode}
+                                    className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                                    disabled={isLoading}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-5 py-2.5 bg-primary text-sky-600 rounded-lg hover:bg-secondary transition flex items-center justify-center"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? (
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    ) : (
+                                        <FaSave className="mr-2" />
+                                    )}
+                                    Save Changes
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
