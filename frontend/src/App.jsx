@@ -1,13 +1,18 @@
-// src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../src/pages/Auth/LoginPage';
+import Register from '../src/pages/Auth/ResgisterPage';
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Redirect root to login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        
+        {/* Auth routes */}
         <Route path="/login" element={<Login />} />
-        {/* Add other routes as needed */}
+        <Route path="/register" element={<Register />} />
       </Routes>
     </Router>
   );
