@@ -95,6 +95,7 @@ Testing is split between frontend (Jest) and backend (xUnit).
 ![h4](https://github.com/user-attachments/assets/86ac0695-64ef-4b25-975e-8bd8e02f61f9)
 
 ## AI health checker
+Funnels information into an LLM Groq API key
 ![Image](https://github.com/user-attachments/assets/825d1377-dd5b-4404-8f02-d82f859f2f77)
 ![AI2](https://github.com/user-attachments/assets/4cd0cc9c-bb5e-47c9-ac7d-a79d7076909a)
 
