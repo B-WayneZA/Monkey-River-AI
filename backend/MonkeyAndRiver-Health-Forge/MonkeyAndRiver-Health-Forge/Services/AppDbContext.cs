@@ -13,7 +13,6 @@ namespace MonkeyAndRiver_Health_Forge.Services
 		{
 		}
 
-	
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
 			base.OnModelCreating(builder);
@@ -21,13 +20,31 @@ namespace MonkeyAndRiver_Health_Forge.Services
 			builder.Entity<DiagnosticTest>(entity =>
 			{
 				entity.HasKey(d => d.Id);
-				entity.Property(d => d.Name).IsRequired();
-				entity.Property(d => d.Email).IsRequired();
-				entity.Property(d => d.AiEvaluation).HasMaxLength(4000);
-				entity.Property(d => d.Status).HasDefaultValue("Pending");
-			});
 
-			// You can seed an admin here if needed
+				entity.Property(d => d.Name)
+					  .IsRequired()
+					  .HasMaxLength(200); 
+
+				entity.Property(d => d.Email)
+					  .IsRequired()
+					  .HasMaxLength(256); 
+
+				entity.Property(d => d.AiEvaluation)
+					  .HasMaxLength(4000);
+
+				entity.Property(d => d.Status)
+					  .HasDefaultValue("Pending")
+					  .HasMaxLength(50);
+
+				entity.Property(d => d.RawInput)
+					  .HasMaxLength(4000);
+
+				
+				entity.HasOne(d => d.AppUser)
+					  .WithMany(u => u.DiagnosticTests)
+					  .HasForeignKey(d => d.AppUserId)
+					  .OnDelete(DeleteBehavior.Cascade);
+			});
 		}
 	}
 }
