@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Sidebar from '../../components/Sidebar';
 import AlertRow from '../../components/AlertRow';
 
@@ -6,6 +6,7 @@ const Dashboard = () => {
   const [alerts, setAlerts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pulsingAlerts, setPulsingAlerts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     // Simulate API call to fetch alerts
@@ -85,7 +86,7 @@ const Dashboard = () => {
           }
         ];
         setAlerts(mockAlerts);
-        setPulsingAlerts([1]); // Set first alert as pulsing
+        setPulsingAlerts([1]); 
         setIsLoading(false);
       }, 1000);
     };
@@ -105,6 +106,26 @@ const Dashboard = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Filter alerts based on search term
+  const filteredAlerts = useMemo(() => {
+  if (!searchTerm) return alerts;
+  
+  const lowerCaseSearch = searchTerm.toLowerCase();
+  
+  return alerts.filter(alert => {
+    return (
+      alert.title.toLowerCase().includes(lowerCaseSearch) ||
+      alert.description.toLowerCase().includes(lowerCaseSearch) ||
+      alert.patient.name.toLowerCase().includes(lowerCaseSearch) ||
+      alert.type.toLowerCase().includes(lowerCaseSearch)
+    );
+  });
+}, [alerts, searchTerm]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -127,6 +148,8 @@ const Dashboard = () => {
                   type="text" 
                   placeholder="Search alerts..." 
                   className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
                 />
               </div>
               
@@ -145,7 +168,7 @@ const Dashboard = () => {
               <div className="flex justify-between">
                 <div>
                   <p className="text-gray-500">Total Alerts</p>
-                  <p className="text-3xl font-bold mt-2">{alerts.length}</p>
+                  <p className="text-3xl font-bold mt-2">{filteredAlerts.length}</p>
                 </div>
                 <div className="bg-blue-100 p-3 rounded-lg">
                   <i className="fas fa-bell text-primary text-xl"></i>
@@ -158,7 +181,7 @@ const Dashboard = () => {
                 <div>
                   <p className="text-gray-500">Critical</p>
                   <p className="text-3xl font-bold mt-2 text-red-500">
-                    {alerts.filter(a => a.status === 'critical').length}
+                    {filteredAlerts.filter(a => a.status === 'critical').length}
                   </p>
                 </div>
                 <div className="bg-red-100 p-3 rounded-lg">
@@ -172,7 +195,7 @@ const Dashboard = () => {
                 <div>
                   <p className="text-gray-500">Unresolved</p>
                   <p className="text-3xl font-bold mt-2 text-yellow-500">
-                    {alerts.filter(a => a.status !== 'resolved').length}
+                    {filteredAlerts.filter(a => a.status !== 'resolved').length}
                   </p>
                 </div>
                 <div className="bg-yellow-100 p-3 rounded-lg">
@@ -186,7 +209,7 @@ const Dashboard = () => {
                 <div>
                   <p className="text-gray-500">Resolved</p>
                   <p className="text-3xl font-bold mt-2 text-green-500">
-                    {alerts.filter(a => a.status === 'resolved').length}
+                    {filteredAlerts.filter(a => a.status === 'resolved').length}
                   </p>
                 </div>
                 <div className="bg-green-100 p-3 rounded-lg">
@@ -238,7 +261,7 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {alerts.map(alert => (
+                    {filteredAlerts.map(alert => (
                       <AlertRow 
                         key={alert.id} 
                         alert={alert} 
@@ -253,7 +276,7 @@ const Dashboard = () => {
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-700">
-                    Showing <span className="font-medium">1</span> to <span className="font-medium">5</span> of <span className="font-medium">{alerts.length}</span> alerts
+                    Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredAlerts.length}</span> of <span className="font-medium">{filteredAlerts.length}</span> alerts
                   </div>
                   <div className="flex space-x-2">
                     <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
