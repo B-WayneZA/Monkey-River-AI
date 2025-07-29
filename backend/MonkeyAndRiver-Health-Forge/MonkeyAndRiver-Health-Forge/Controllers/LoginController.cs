@@ -25,7 +25,8 @@ namespace MonkeyAndRiver_Health_Forge.Controllers
 			var user = new AppUser
 			{
 				UserName = dto.Email,
-				Email = dto.Email
+				Email = dto.Email,
+				Name = dto.Name
 			};
 
 			var result = await _userManager.CreateAsync(user, dto.Password);
@@ -38,7 +39,15 @@ namespace MonkeyAndRiver_Health_Forge.Controllers
 
 			await _userManager.AddToRoleAsync(user, "User");
 
-			return Ok(new { Message = "User registered successfully" });
+			var roles = await _userManager.GetRolesAsync(user);
+			var token = _jwtHandler.GenerateToken(user, roles);
+
+			return Ok(new
+			{
+				Message = "User registered successfully",
+				Token = token,
+				User = new { user.Id, user.UserName, user.Email, user.Name }
+			});
 		}
 
 		[HttpPost("login")]
@@ -52,10 +61,14 @@ namespace MonkeyAndRiver_Health_Forge.Controllers
 			var roles = await _userManager.GetRolesAsync(user);
 			var token = _jwtHandler.GenerateToken(user, roles);
 
-			return Ok(new { Token = token });
+			return Ok(new
+			{
+				Token = token,
+				User = new { user.Id, user.UserName, user.Email, user.Name }
+			});
 		}
 
-		
+
 		[HttpGet]
 		public async Task<IActionResult> GetAllUsers()
 		{
@@ -73,7 +86,7 @@ namespace MonkeyAndRiver_Health_Forge.Controllers
 			return Ok(user);
 		}
 
-	
+
 		[HttpPut("{id}")]
 		public async Task<IActionResult> UpdateUser(string id, [FromBody] AppUser updatedUser)
 		{
@@ -92,7 +105,7 @@ namespace MonkeyAndRiver_Health_Forge.Controllers
 			return Ok("User updated successfully.");
 		}
 
-		
+
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteUser(string id)
 		{
