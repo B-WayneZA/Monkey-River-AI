@@ -1,0 +1,26 @@
+
+.vs/
+.vscode/
+*.vsidx
+*.suo
+*.user
+
+
+bin/
+obj/
+*.cache
+*.dll
+*.pdb
+*.exe
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+
+Development.json
+
+.DS_Store
+Thumbs.db

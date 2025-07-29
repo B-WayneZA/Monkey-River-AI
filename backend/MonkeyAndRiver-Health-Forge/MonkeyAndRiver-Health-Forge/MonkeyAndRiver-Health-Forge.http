@@ -1,0 +1,6 @@
+@MonkeyAndRiver_Health_Forge_HostAddress = http://localhost:5137
+
+GET {{MonkeyAndRiver_Health_Forge_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
