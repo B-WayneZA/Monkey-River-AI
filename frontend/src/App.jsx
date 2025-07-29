@@ -10,10 +10,9 @@ function App() {
     <Router>
       <Routes>
         {/* Redirect root to login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Login />} />
         
         {/* Auth routes */}
-        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         {/* Protected route (add auth wrapper later if needed) */}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaEnvelope, FaLock, FaBell, FaSave, FaEdit, FaMoon, FaSun } from 'react-icons/fa';
-import Sidebar from './Sidebar';
+import Sidebar from '../../components/Sidebar';
 
 const Profile = () => {
     const [user, setUser] = useState({
