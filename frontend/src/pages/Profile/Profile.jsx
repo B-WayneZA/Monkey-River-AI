@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaEnvelope, FaLock, FaBell, FaSave, FaEdit, FaMoon, FaSun, FaChevronLeft } from 'react-icons/fa';
-import Sidebar from '../../components/Sidebar';
+import Sidebar from '../../components/SidebarUser';
+import SidebarUser from '../../components/SidebarUser';
 
 const Profile = () => {
     // Initialize state with complete default values
@@ -21,7 +22,7 @@ const Profile = () => {
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
-    // Apply theme preference on component mount and when theme changes
+    
     useEffect(() => {
         const applyTheme = () => {
             if (user.themePreference === 'dark') {
@@ -66,7 +67,7 @@ const Profile = () => {
         fetchUserData();
     }, []);
 
-    // Apply theme whenever themePreference changes
+    
     useEffect(() => {
         if (user.themePreference === 'dark') {
             document.documentElement.classList.add('dark');
@@ -148,7 +149,7 @@ const Profile = () => {
 
     return (
         <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
-            <Sidebar />
+            <SidebarUser />
 
             {/* Main Content */}
             <div className="flex-1 ml-64">
