@@ -26,23 +26,14 @@ const Login = () => {
 
             const result = await res.json();
             if (res.ok) {
-                const username = result.data.user.username;
+                // Store user data
+                localStorage.setItem('user', JSON.stringify({
+                    username: result.data.user.username,
+                    token: result.data.token
+                }));
 
-                const idRes = await fetch(`http://localhost:5000/api/auth/user-id/${username}`);
-                const idResult = await idRes.json();
-
-                if (idRes.ok && idResult.data?.user_id) {
-                    const userId = idResult.data.user_id;
-                    const token = result.data.token;
-                    localStorage.setItem('user', JSON.stringify({
-                        username,
-                        id: userId,
-                        token: token
-                    }));
-                    navigate('/dashboard', { state: { userId } });
-                } else {
-                    setError('Could not retrieve user ID after login.');
-                }
+                // Redirect to profile page
+                navigate('/profile'); // Add this line
             } else {
                 setError(result.message || 'Login failed');
             }
@@ -187,6 +178,16 @@ const Login = () => {
                                             <FaSignInAlt />
                                             Login
                                         </motion.button>
+
+
+                                        <div className="mt-4 text-center">
+                                            <Link
+                                                to="/profile"
+                                                className="text-blue-500 hover:underline"
+                                            >
+                                                [DEV] Go to Profile (temp link)
+                                            </Link>
+                                        </div>
 
                                         {/* Admin button */}
                                         <motion.button
