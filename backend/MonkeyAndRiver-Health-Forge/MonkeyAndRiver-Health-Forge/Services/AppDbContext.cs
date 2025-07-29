@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿// Services/AppDbContext.cs
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MonkeyAndRiver_Health_Forge.Models;
+using System.Text.Json;
 
 namespace MonkeyAndRiver_Health_Forge.Services
 {
@@ -22,28 +24,30 @@ namespace MonkeyAndRiver_Health_Forge.Services
 				entity.HasKey(d => d.Id);
 
 				entity.Property(d => d.Name)
-					  .IsRequired()
-					  .HasMaxLength(200); 
+					.IsRequired()
+					.HasMaxLength(200);
 
 				entity.Property(d => d.Email)
-					  .IsRequired()
-					  .HasMaxLength(256); 
+					.IsRequired()
+					.HasMaxLength(256);
 
 				entity.Property(d => d.AiEvaluation)
-					  .HasMaxLength(4000);
+					.HasMaxLength(4000);
 
 				entity.Property(d => d.Status)
-					  .HasDefaultValue("Pending")
-					  .HasMaxLength(50);
+					.HasDefaultValue("Pending")
+					.HasMaxLength(50);
 
-				entity.Property(d => d.RawInput)
-					  .HasMaxLength(4000);
+				entity.Property(d => d.AdditionalNotes)
+					.HasMaxLength(4000);
 
-				
+				entity.Property(d => d.HealthInfoJson)
+					.HasColumnType("nvarchar(max)");
+
 				entity.HasOne(d => d.AppUser)
-					  .WithMany(u => u.DiagnosticTests)
-					  .HasForeignKey(d => d.AppUserId)
-					  .OnDelete(DeleteBehavior.Cascade);
+					.WithMany(u => u.DiagnosticTests)
+					.HasForeignKey(d => d.AppUserId)
+					.OnDelete(DeleteBehavior.Cascade);
 			});
 		}
 	}

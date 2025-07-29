@@ -11,7 +11,7 @@ function App() {
     <Router>
       <Routes>
         {/* Redirect root to login */}
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         
         {/* Auth routes */}
         <Route path="/register" element={<Register />} />

@@ -8,8 +8,6 @@ using MonkeyAndRiver_Health_Forge.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("Development.json", optional: true, reloadOnChange: true);
-
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -51,6 +49,15 @@ builder.Services.AddAuthentication(options =>
 		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
 	};
 });
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowFrontend",
+		policy => policy
+			.WithOrigins("http://localhost:3000")
+			.AllowAnyHeader()
+			.AllowAnyMethod()
+			.AllowCredentials());
+});
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
@@ -70,7 +77,7 @@ using (var scope = app.Services.CreateScope())
 	}
 	catch (Exception ex)
 	{
-		
+
 		Console.WriteLine($"[ERROR] Seeding failed: {ex.Message}");
 	}
 }
@@ -82,7 +89,8 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

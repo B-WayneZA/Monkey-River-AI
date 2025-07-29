@@ -6,7 +6,7 @@ import logoImg from '../../assets/Favicon.png';
 
 const Register = () => {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({ username: '', password: '' });
+    const [formData, setFormData] = useState({  email: '', name: '', password: ''});
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
@@ -16,40 +16,42 @@ const Register = () => {
 
     // handle the register of the paeg -> backend logic
     const handleRegister = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await fetch('http://localhost:5000/api/auth/regsiter', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            });
+    e.preventDefault();
+    setError('');
 
-            const result = await res.json();
-            if (res.ok) {
-                const username = result.data.user.username;
+    try {
+        const res = await fetch('http://localhost:5137/api/Users/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
 
-                const idRes = await fetch(`http://localhost:5000/api/auth/user-id/${username}`);
-                const idResult = await idRes.json();
+        const result = await res.json();
 
-                if (idRes.ok && idResult.data?.user_id) {
-                    const userId = idResult.data.user_id;
-                    const token = result.data.token;
-                    localStorage.setItem('user', JSON.stringify({
-                        username,
-                        id: userId,
-                        token: token
-                    }));
-                    navigate('/dashboard', { state: { userId } });
-                } else {
-                    setError('Could not retrieve user ID after login.');
-                }
-            } else {
-                setError(result.message || 'Login failed');
-            }
-        } catch (err) {
-            setError('Network error: ' + err.message);
+        if (res.ok) {
+            const { token, user } = result;
+
+            // Store in localStorage
+            localStorage.setItem('user', JSON.stringify({
+                id: user.id,
+                username: user.userName,
+                email: user.email,
+                name: user.name,
+                token: token
+            }));
+
+            // Redirect to dashboard
+            navigate('/dashboard', { state: { userId: user.id } });
+        } else {
+            // Server-side validation or identity errors
+            const errorMessage = result.errors?.join(', ') || result.message || 'Registration failed.';
+            setError(errorMessage);
         }
-    };
+    } catch (err) {
+        setError('Network error: ' + err.message);
+    }
+};
+
 
     return (
         <section className="min-h-screen bg-gray-200 overflow-hidden relative">
@@ -133,7 +135,7 @@ const Register = () => {
                                                 <input
                                                     type="text"
                                                     name="name"
-                                                    value={formData.username}
+                                                    value={formData.name}
                                                     onChange={handleChange}
                                                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                                                     placeholder="Enter your name"

@@ -179,16 +179,6 @@ const Login = () => {
                                             Login
                                         </motion.button>
 
-
-                                        <div className="mt-4 text-center">
-                                            <Link
-                                                to="/profile"
-                                                className="text-blue-500 hover:underline"
-                                            >
-                                                [DEV] Go to Profile (temp link)
-                                            </Link>
-                                        </div>
-
                                         {/* Admin button */}
                                         <motion.button
                                             whileHover={{ scale: 1.02 }}
