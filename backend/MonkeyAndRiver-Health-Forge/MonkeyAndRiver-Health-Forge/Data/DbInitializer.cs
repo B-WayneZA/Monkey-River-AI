@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MonkeyAndRiver_Health_Forge.Models;
-using MonkeyAndRiver_Health_Forge.Services;
 
-namespace MonkeyAndRiver_Health_Forge.Data
+namespace MonkeyAndRiver_Health_Forge.Services
 {
 	public static class DbInitializer
 	{
@@ -12,67 +11,99 @@ namespace MonkeyAndRiver_Health_Forge.Data
 			using var scope = serviceProvider.CreateScope();
 			var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 			var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+			var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-			// Ensure DB is created and up to date
 			await context.Database.MigrateAsync();
 
-			// Seed Admin User
-			var adminEmail = "admin@healthforge.com";
-			var adminPassword = "Admin@1234"; 
-
-			if (await userManager.FindByEmailAsync(adminEmail) == null)
+			
+			var roles = new[] { "Admin", "User" };
+			foreach (var role in roles)
 			{
-				var adminUser = new AppUser
+				if (!await roleManager.RoleExistsAsync(role))
+				{
+					await roleManager.CreateAsync(new IdentityRole(role));
+				}
+			}
+
+			
+			var adminEmail = "admin@healthforge.com";
+			var adminPassword = "Admin@1234";
+			var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+			if (adminUser == null)
+			{
+				adminUser = new AppUser
 				{
 					UserName = adminEmail,
 					Email = adminEmail,
 					EmailConfirmed = true
 				};
-
-				var result = await userManager.CreateAsync(adminUser, adminPassword);
-
-				if (!result.Succeeded)
-				{
-					throw new Exception("Failed to create admin user: " + string.Join(", ", result.Errors.Select(e => e.Description)));
-				}
+				await userManager.CreateAsync(adminUser, adminPassword);
+				await userManager.AddToRoleAsync(adminUser, "Admin");
 			}
 
-			// Seed Diagnostic Tests
+		
+			var testUser1 = await CreateTestUser(userManager, "patient1@healthforge.com", "Patient1@123");
+			var testUser2 = await CreateTestUser(userManager, "patient2@healthforge.com", "Patient2@123");
+
+			
 			if (!context.DiagnosticTests.Any())
 			{
-				context.DiagnosticTests.AddRange(new List<DiagnosticTest>
-				{
-					new DiagnosticTest {
+				context.DiagnosticTests.AddRange(
+					new DiagnosticTest
+					{
 						Name = "John Doe",
-						Email = "john@example.com",
-						Date = DateTime.UtcNow,
+						Email = testUser1.Email,
 						Result = "Low Risk",
-						AiEvaluation = "User appears healthy with no known risks.",
-						RawInput = "No pre-existing conditions, non-smoker",
-						Status = "Approved"
+						AiEvaluation = "Evaluation OK",
+						RawInput = "No known conditions",
+						Status = "Approved",
+						AppUserId = testUser1.Id,
+						Date = DateTime.UtcNow
 					},
-					new DiagnosticTest {
+					new DiagnosticTest
+					{
 						Name = "Jane Smith",
-						Email = "jane@example.com",
-						Date = DateTime.UtcNow,
+						Email = testUser2.Email,
 						Result = "High Risk",
-						AiEvaluation = "AI detected chronic symptoms indicative of elevated risk.",
-						RawInput = "Asthma, recent hospitalization",
-						Status = "Rejected"
+						AiEvaluation = "Detected severe issues",
+						RawInput = "Chronic symptoms",
+						Status = "Rejected",
+						AppUserId = testUser2.Id,
+						Date = DateTime.UtcNow
 					},
-					new DiagnosticTest {
-						Name = "Bob Marley",
-						Email = "bob@music.com",
-						Date = DateTime.UtcNow,
-						Result = "Pending",
-						AiEvaluation = "Awaiting evaluation...",
-						RawInput = "Not yet reviewed",
-						Status = "Pending"
+					new DiagnosticTest
+					{
+						Name = "Admin Test",
+						Email = adminUser.Email,
+						Result = "Medium Risk",
+						AiEvaluation = "Needs follow up",
+						RawInput = "Admin test case",
+						Status = "Pending",
+						AppUserId = adminUser.Id,
+						Date = DateTime.UtcNow
 					}
-				});
-
+				);
 				await context.SaveChangesAsync();
 			}
+		}
+
+		private static async Task<AppUser> CreateTestUser(UserManager<AppUser> userManager,
+			string email, string password)
+		{
+			var user = await userManager.FindByEmailAsync(email);
+			if (user == null)
+			{
+				user = new AppUser
+				{
+					UserName = email,
+					Email = email,
+					EmailConfirmed = true
+				};
+				await userManager.CreateAsync(user, password);
+				await userManager.AddToRoleAsync(user, "User");
+			}
+			return user;
 		}
 	}
 }
