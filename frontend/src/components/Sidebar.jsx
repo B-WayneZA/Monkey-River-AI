@@ -26,11 +26,11 @@ const Sidebar = () => {
         </Link>
         
         <Link 
-          to="/patients" 
+          to="/test" 
           className="flex items-center px-4 py-3 text-gray-600 hover:bg-blue-50"
         >
           <i className="fas fa-user-injured w-5 mr-3 text-center"></i>
-          <span>Patient Overview</span>
+          <span>DiagnosticTest</span>
         </Link>
         
         <Link 
