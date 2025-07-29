@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaEye, FaEyeSlash, FaGoogle, FaFacebook, FaLock, FaHeartbeat, FaPlay, FaUser, FaSignInAlt, FaEnvelope } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaGoogle, FaFacebook, FaLock, FaHeartbeat, FaPlay, FaUser, FaSignInAlt, FaEnvelope, FaUserShield } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import logoImg from '../../assets/Favicon.png';
 
@@ -186,6 +186,17 @@ const Login = () => {
                                         >
                                             <FaSignInAlt />
                                             Login
+                                        </motion.button>
+
+                                        {/* Admin button */}
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            type="submit"
+                                            className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
+                                        >
+                                            <FaUserShield />
+                                            Admin
                                         </motion.button>
 
                                         {/* Divider */}
