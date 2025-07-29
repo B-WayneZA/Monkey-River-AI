@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaHeartbeat, FaThermometerHalf, FaWeight, FaRuler, FaPills, FaAllergies, FaSmoking, FaWineGlassAlt, FaRunning } from 'react-icons/fa';
 
 const HealthChecker = () => {
     const [step, setStep] = useState(1);
+    const navigate = useNavigate();
+
     const [answers, setAnswers] = useState({
         age: '',
         gender: '',
@@ -324,68 +327,7 @@ const HealthChecker = () => {
                     </div>
                 );
 
-                return (
-                    <div className="space-y-8">
-                        <h2 className="text-3xl font-bold text-center">Your Health Assessment</h2>
-
-                        <div className="bg-white p-6 rounded-xl shadow-md">
-                            <h3 className="text-xl font-semibold mb-4">Summary</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <p className="font-medium">Insurance Risk Level:</p>
-                                    <p className={`text-2xl font-bold ${results.insuranceRisk === 'High' ? 'text-red-600' :
-                                            results.insuranceRisk === 'Medium' ? 'text-yellow-600' : 'text-green-600'
-                                        }`}>
-                                        {results.insuranceRisk}
-                                    </p>
-                                </div>
-                                {results.bmi && (
-                                    <div>
-                                        <p className="font-medium">BMI:</p>
-                                        <p className="text-2xl font-bold">{results.bmi}</p>
-                                        <p className="text-sm">
-                                            {results.bmi < 18.5 ? 'Underweight' :
-                                                results.bmi < 25 ? 'Normal weight' :
-                                                    results.bmi < 30 ? 'Overweight' : 'Obese'}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {results.recommendations.length > 0 && (
-                            <div className="bg-blue-50 p-6 rounded-xl">
-                                <h3 className="text-xl font-semibold mb-4">Recommendations</h3>
-                                <ul className="list-disc pl-5 space-y-2">
-                                    {results.recommendations.map((item, index) => (
-                                        <li key={index}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-
-                        <div className="bg-gray-50 p-6 rounded-xl">
-                            <h3 className="text-xl font-semibold mb-4">Next Steps</h3>
-                            <p className="mb-4">Based on your assessment, we recommend:</p>
-                            <div className="space-y-4">
-                                <button className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
-                                    View Recommended Insurance Plans
-                                </button>
-                                <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">
-                                    Connect with a Health Advisor
-                                </button>
-                                <button
-                                    onClick={() => setStep(1)}
-                                    className="w-full bg-gray-200 text-gray-800 py-3 rounded-lg hover:bg-gray-300"
-                                >
-                                    Start New Assessment
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                );
             case 7:
-
                 return (
                     <div className="space-y-8">
                         <h2 className="text-3xl font-bold text-center">Your Health Assessment</h2>
@@ -396,7 +338,7 @@ const HealthChecker = () => {
                                 <div>
                                     <p className="font-medium">Insurance Risk Level:</p>
                                     <p className={`text-2xl font-bold ${results.insuranceRisk === 'High' ? 'text-red-600' :
-                                            results.insuranceRisk === 'Medium' ? 'text-yellow-600' : 'text-green-600'
+                                        results.insuranceRisk === 'Medium' ? 'text-yellow-600' : 'text-green-600'
                                         }`}>
                                         {results.insuranceRisk}
                                     </p>
@@ -461,7 +403,10 @@ const HealthChecker = () => {
                                                 or to save your results for future reference, please log in to your account.
                                             </p>
                                             <div className="mt-4">
-                                                <button className="px-4 py-2 bg-sky-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700">
+                                                <button
+                                                    onClick={() => navigate('/login')}  // or your login route path
+                                                    className="px-4 py-2 bg-sky-600 text-white text-sm font-medium rounded-md hover:bg-yellow-700"
+                                                >
                                                     Log In / Sign Up
                                                 </button>
                                             </div>
